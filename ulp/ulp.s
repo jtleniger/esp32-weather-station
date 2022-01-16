@@ -17,6 +17,12 @@ nextWindEdge:
     .global windDebounceCounter
 windDebounceCounter:
 .long 0xa
+    .global reading
+reading:
+.long 0x0
+    .global sample
+sample:
+.long 0x0
     .global entry
 .text
 .bss
@@ -129,7 +135,7 @@ jump L.15
 move r2,windDebounceCounter
 move r1,10
 st r1,r2,0
-jump L.2
+jump L.16
 L.15:
 move r2,windDebounceCounter
 ld r2,r2,0
@@ -139,7 +145,7 @@ move r2,windDebounceCounter
 ld r1,r2,0
 sub r1,r1,1
 st r1,r2,0
-jump L.2
+jump L.18
 L.17:
 move r2,windDebounceCounter
 move r1,10
@@ -173,7 +179,62 @@ L.23:
 move r1,entry.21
 ld r1,r1,0
 st r1,r2,0
-jump L.2
+L.18:
+L.16:
+wait 8000
+move r2,sample
+ld r1,r2,0
+add r1,r1,1
+st r1,r2,0
+ld r2,r2,0
+move r1,999
+sub r2,r2,r1 #{ if r2 <= r1 goto L.24
+add r2,r2,r1
+jump L.24, eq
+jump L.24, ov #}
+move r2,sample
+move r1,0
+st r1,r2,0
+move r2,reading
+ld r2,r2,0
+move r1,windBuckets
+add r2,r2,r1
+move r1,windTicks
+ld r1,r1,0
+st r1,r2,0
+move r2,windTicks
+move r1,0
+st r1,r2,0
+move r2,reading
+ld r2,r2,0
+move r1,rainBuckets
+add r2,r2,r1
+move r1,rainTicks
+ld r1,r1,0
+st r1,r2,0
+move r2,rainTicks
+move r1,0
+st r1,r2,0
+move r2,reading
+ld r1,r2,0
+add r1,r1,1
+st r1,r2,0
+L.24:
+move r2,reading
+ld r2,r2,0
+move r1,299
+sub r2,r2,r1 #{ if r2 < r1 goto L.2
+add r2,r2,r1
+jump L.2, ov #}
+L.31:
+L.32:
+reg_rd 48,19,19
+and r2,r0,1
+move r2,r2 #if r2 == 0 goto L.31
+jump L.31, eq
+wake 
+halt 
+L.29:
 L.1:
 
 .bss
