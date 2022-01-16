@@ -1,22 +1,16 @@
 .data
-    .global rainTicks
-rainTicks:
+    .global rain_ticks
+rain_ticks:
 .long 0x0
-    .global nextRainEdge
-nextRainEdge:
+    .global next_rain_edge
+next_rain_edge:
 .long 0x0
-    .global rainDebounceCounter
-rainDebounceCounter:
-.long 0xa
-    .global windTicks
-windTicks:
+    .global wind_ticks
+wind_ticks:
 .long 0x0
-    .global nextWindEdge
-nextWindEdge:
-.long 0x0
-    .global windDebounceCounter
-windDebounceCounter:
-.long 0xa
+    .global next_wind_edge
+next_wind_edge:
+.long 0x1
     .global reading
 reading:
 .long 0x0
@@ -26,161 +20,107 @@ sample:
     .global entry
 .text
 .bss
-entry.rain:
-    .space 4
-.text
-.bss
 entry.wind:
     .space 4
 .text
 .bss
-entry.12:
+entry.rain:
     .space 4
 .text
 .bss
-entry.21:
+entry.10:
+    .space 4
+.text
+.bss
+entry.17:
     .space 4
 .text
 entry:
 L.2:
-reg_rd 265,31,30
-rsh r2,r0,9
-move r3,entry.rain
-st r2,r3,0
-reg_rd 265,29,14
-rsh r2,r0,14
+reg_rd 265,30,30
 move r3,entry.wind
-st r2,r3,0
+st r0,r3,0
+reg_rd 265,20,20
+move r3,entry.rain
+st r0,r3,0
 move r2,entry.rain
 ld r2,r2,0
-and r2,r2,1
-move r3,entry.rain
-st r2,r3,0
-move r2,entry.wind
-ld r2,r2,0
-and r2,r2,1
-move r3,entry.wind
-st r2,r3,0
-move r2,entry.rain
-ld r2,r2,0
-move r1,nextRainEdge
+move r1,next_rain_edge
 ld r1,r1,0
-sub r2,r2,r1 #{ if r2==r1 goto L.6 
+sub r2,r2,r1 #{ if r2!=r1 goto L.6 
 jump 1f, eq
 add r2,r2,r1
-jump 2f
-1:
-add r2,r2,r1
 jump L.6
-2:           #}
-move r2,rainDebounceCounter
-move r1,10
-st r1,r2,0
-jump L.7
-L.6:
-move r2,rainDebounceCounter
+1:
+add r2,r2,r1 #}
+move r2,next_rain_edge
 ld r2,r2,0
 move r2,r2 #if r2 == 0 goto L.8
 jump L.8, eq
-move r2,rainDebounceCounter
-ld r1,r2,0
-sub r1,r1,1
-st r1,r2,0
-jump L.9
-L.8:
-move r2,rainDebounceCounter
-move r1,10
-st r1,r2,0
-move r2,nextRainEdge
-ld r2,r2,0
-move r2,r2 #if r2 == 0 goto L.10
-jump L.10, eq
-move r2,rainTicks
+move r2,rain_ticks
 ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
-L.10:
-move r2,nextRainEdge
+L.8:
+move r2,next_rain_edge
 ld r1,r2,0
-move r1,r1 #{ if r1 goto L.13 
+move r1,r1 #{ if r1 goto L.11 
 jump 1f, eq
-jump L.13
+jump L.11
 1:           #}
 move r1,1
-move r3,entry.12
+move r3,entry.10
 st r1,r3,0
-jump L.14
-L.13:
+jump L.12
+L.11:
 move r1,0
-move r3,entry.12
+move r3,entry.10
 st r1,r3,0
-L.14:
-move r1,entry.12
+L.12:
+move r1,entry.10
 ld r1,r1,0
 st r1,r2,0
-L.9:
-L.7:
+L.6:
 move r2,entry.wind
 ld r2,r2,0
-move r1,nextWindEdge
+move r1,next_wind_edge
 ld r1,r1,0
-sub r2,r2,r1 #{ if r2==r1 goto L.15 
+sub r2,r2,r1 #{ if r2!=r1 goto L.13 
 jump 1f, eq
 add r2,r2,r1
-jump 2f
+jump L.13
 1:
-add r2,r2,r1
-jump L.15
-2:           #}
-move r2,windDebounceCounter
-move r1,10
-st r1,r2,0
-jump L.16
-L.15:
-move r2,windDebounceCounter
+add r2,r2,r1 #}
+move r2,next_wind_edge
 ld r2,r2,0
-move r2,r2 #if r2 == 0 goto L.17
-jump L.17, eq
-move r2,windDebounceCounter
-ld r1,r2,0
-sub r1,r1,1
-st r1,r2,0
-jump L.18
-L.17:
-move r2,windDebounceCounter
-move r1,10
-st r1,r2,0
-move r2,nextWindEdge
-ld r2,r2,0
-move r2,r2 #{ if r2 goto L.19 
+move r2,r2 #{ if r2 goto L.15 
 jump 1f, eq
-jump L.19
+jump L.15
 1:           #}
-move r2,windTicks
+move r2,wind_ticks
 ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
-L.19:
-move r2,nextWindEdge
+L.15:
+move r2,next_wind_edge
 ld r1,r2,0
-move r1,r1 #{ if r1 goto L.22 
+move r1,r1 #{ if r1 goto L.18 
 jump 1f, eq
-jump L.22
+jump L.18
 1:           #}
 move r1,1
-move r3,entry.21
+move r3,entry.17
 st r1,r3,0
-jump L.23
-L.22:
+jump L.19
+L.18:
 move r1,0
-move r3,entry.21
+move r3,entry.17
 st r1,r3,0
-L.23:
-move r1,entry.21
+L.19:
+move r1,entry.17
 ld r1,r1,0
 st r1,r2,0
-L.18:
-L.16:
+L.13:
 wait 8000
 move r2,sample
 ld r1,r2,0
@@ -188,61 +128,61 @@ add r1,r1,1
 st r1,r2,0
 ld r2,r2,0
 move r1,999
-sub r2,r2,r1 #{ if r2 <= r1 goto L.24
+sub r2,r2,r1 #{ if r2 <= r1 goto L.20
 add r2,r2,r1
-jump L.24, eq
-jump L.24, ov #}
+jump L.20, eq
+jump L.20, ov #}
 move r2,sample
 move r1,0
 st r1,r2,0
 move r2,reading
 ld r2,r2,0
-move r1,windBuckets
+move r1,wind_readings
 add r2,r2,r1
-move r1,windTicks
+move r1,wind_ticks
 ld r1,r1,0
 st r1,r2,0
-move r2,windTicks
+move r2,wind_ticks
 move r1,0
 st r1,r2,0
 move r2,reading
 ld r2,r2,0
-move r1,rainBuckets
+move r1,rain_readings
 add r2,r2,r1
-move r1,rainTicks
+move r1,rain_ticks
 ld r1,r1,0
 st r1,r2,0
-move r2,rainTicks
+move r2,rain_ticks
 move r1,0
 st r1,r2,0
 move r2,reading
 ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
-L.24:
+L.20:
 move r2,reading
 ld r2,r2,0
-move r1,299
+move r1,60
 sub r2,r2,r1 #{ if r2 < r1 goto L.2
 add r2,r2,r1
 jump L.2, ov #}
-L.31:
-L.32:
+L.27:
+L.28:
 reg_rd 48,19,19
 and r2,r0,1
-move r2,r2 #if r2 == 0 goto L.31
-jump L.31, eq
+move r2,r2 #if r2 == 0 goto L.27
+jump L.27, eq
 wake 
 halt 
-L.29:
+L.25:
 L.1:
 
 .bss
-    .global windBuckets
-windBuckets:
+    .global wind_readings
+wind_readings:
     .space 1200
-    .global rainBuckets
-rainBuckets:
+    .global rain_readings
+rain_readings:
     .space 1200
 .text
 halt

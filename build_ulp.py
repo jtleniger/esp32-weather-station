@@ -8,4 +8,4 @@ os.system("ulpcc {}".format(c_path))
 
 s_path = os.path.join("ulp", "ulp.s")
 
-os.replace("ulp.s", "ulp\\ulp.s")
+os.replace("ulp.s", s_path)

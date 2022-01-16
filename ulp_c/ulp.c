@@ -1,82 +1,51 @@
 #include <ulp_c.h>
 
-#define DEBOUNCE_COUNT 10
+#define WIND_PIN 16
+#define RAIN_PIN 6
+
 #define CYCLES_PER_MS 8000
 #define SAMPLES_PER_READING 999
-#define MAX_READING 299
+#define MAX_READING 60
 
-unsigned int rainTicks = 0;
-unsigned int nextRainEdge = 0;
-unsigned int rainDebounceCounter = DEBOUNCE_COUNT;
+unsigned int rain_ticks = 0;
+unsigned int next_rain_edge = 0;
 
-unsigned int windTicks = 0;
-unsigned int nextWindEdge = 0;
-unsigned int windDebounceCounter = DEBOUNCE_COUNT;
+unsigned int wind_ticks = 0;
+unsigned int next_wind_edge = 1;
 
-unsigned int rainBuckets[300];
-unsigned int windBuckets[300];
+unsigned int rain_readings[300];
+unsigned int wind_readings[300];
 
 unsigned int reading = 0;
 unsigned int sample = 0;
 
 void entry()
 {
-    // Loop at 1000Hz
-
     for (;;)
     {
-        /* READ GPIO REGISTERS AND INC COUNTERS */
-        unsigned int rain = READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + 16, 2) >> (25 - 16);
-        unsigned int wind = READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S, 16) >> 14;
+        unsigned int wind = READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + WIND_PIN, 1);
+        unsigned int rain = READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + RAIN_PIN, 1);
 
-        rain &= 1;
-        wind &= 1;
-
-        if (rain != nextRainEdge) {
-            rainDebounceCounter = DEBOUNCE_COUNT;
-        }
-        else
-        {
-            if (rainDebounceCounter)
+        if (rain == next_rain_edge) {
+            
+            /* RISING EDGE */
+            if (next_rain_edge)
             {
-                rainDebounceCounter--;
+                rain_ticks++;
             }
-            else
-            {
-                /* EDGE DETECTED */
-                rainDebounceCounter = DEBOUNCE_COUNT;
 
-                if (nextRainEdge)
-                {
-                    rainTicks++;
-                }
-
-                nextRainEdge = !nextRainEdge;
-            }
+            next_rain_edge = !next_rain_edge;
         }
 
-        if (wind != nextWindEdge)
+        if (wind == next_wind_edge)
         {
-            windDebounceCounter = DEBOUNCE_COUNT;
-        }
-        else
-        {
-            if (windDebounceCounter)
+            /* FALLING EDGE */
+            if (!next_wind_edge)
             {
-                windDebounceCounter--;
+                wind_ticks++;
             }
-            else
-            {
-                /* EDGE DETECTED */
-                windDebounceCounter = DEBOUNCE_COUNT;
 
-                if (!nextWindEdge)
-                {
-                    windTicks++;
-                }
-
-                nextWindEdge = !nextWindEdge;
-            }
+            next_wind_edge = !next_wind_edge;
         }
 
         wait(CYCLES_PER_MS);
@@ -87,11 +56,11 @@ void entry()
         {
             sample = 0;
 
-            windBuckets[reading] = windTicks;
-            windTicks = 0;
+            wind_readings[reading] = wind_ticks;
+            wind_ticks = 0;
 
-            rainBuckets[reading] = rainTicks;
-            rainTicks = 0;
+            rain_readings[reading] = rain_ticks;
+            rain_ticks = 0;
 
             reading++;
         }

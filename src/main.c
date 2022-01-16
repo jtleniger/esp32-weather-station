@@ -4,15 +4,13 @@
 #include "esp32/ulp.h"
 #include "esp_sleep.h"
 #include "ulp_main.h"
+#include "driver/gpio.h"
 
 extern const uint8_t ulp_main_bin_start[] asm("_binary_ulp_main_bin_start");
 extern const uint8_t ulp_main_bin_end[]   asm("_binary_ulp_main_bin_end");
 
-// extern uint32_t ulp_rainBuckets;
-// extern uint32_t ulp_windBuckets;
-
-// extern uint32_t ulp_reading;
-// extern uint32_t ulp_sample;
+extern uint32_t ulp_wind_readings;
+extern uint32_t ulp_rain_readings;
 
 void print_wakeup_reason()
 {
@@ -30,38 +28,48 @@ void print_wakeup_reason()
   }
 }
 
+const gpio_config_t config = { 
+  .pin_bit_mask = 1ULL << 25 | 1ULL << 14,
+  .mode = GPIO_MODE_INPUT,
+  .intr_type = GPIO_INTR_DISABLE,
+  .pull_down_en = GPIO_PULLDOWN_DISABLE,
+  .pull_up_en = GPIO_PULLUP_DISABLE
+};
+
 void app_main(void)
 {
     printf("\n");
     printf("good morno\n\n");
     print_wakeup_reason();
 
-    // /* Print array values */
-    // printf("Rain readings:");
+    esp_err_t err = gpio_config(&config);
+    ESP_ERROR_CHECK(err);
 
-    // for (int i = 0; i < 300; i++)
-    // {
-    //     printf("minute: %d ticks: %d\n", i + 1, (uint16_t)(&ulp_rainBuckets)[i]);
-    // }
+    if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_ULP)
+    {
+        printf("Rain readings:\n");
 
-    // printf("Wind readings:");
+        for (int i = 0; i < 60; i++)
+        {
+            printf("second: %d ticks: %d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i]);
+        }
 
-    // for (int i = 0; i < 300; i++)
-    // {
-    //     printf("minute: %d ticks: %d\n", i + 1, (uint16_t)(&ulp_windBuckets)[i]);
-    // }
+        printf("Wind readings:\n");
+
+        for (int i = 0; i < 60; i++)
+        {
+            printf("second: %d ticks: %d\n", i + 1, (uint16_t)(&ulp_wind_readings)[i]);
+        }
+    }
 
     printf("good night\n\n");
     fflush(stdout);
 
-    /* Load ULP Binary */
-    esp_err_t err = ulp_load_binary(0, ulp_main_bin_start, (ulp_main_bin_end - ulp_main_bin_start) / sizeof(uint32_t));
+    err = ulp_load_binary(0, ulp_main_bin_start, (ulp_main_bin_end - ulp_main_bin_start) / sizeof(uint32_t));
     ESP_ERROR_CHECK(err);
 
-    // /* Set ULP wake up period to T = 20ms. */
     ulp_set_wakeup_period(0, 20000);
 
-    // // /* Start ULP program */
     err = ulp_run(&ulp_entry - RTC_SLOW_MEM);
     ESP_ERROR_CHECK(err);
 
