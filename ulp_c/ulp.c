@@ -3,9 +3,9 @@
 #define WIND_PIN 16
 #define RAIN_PIN 6
 
-#define CYCLES_PER_MS 8000
-#define SAMPLES_PER_READING 999
-#define MAX_READING 60
+#define CYCLES_PER_LOOP 123
+#define SAMPLES_PER_READING 65041
+#define MAX_READING 30
 
 unsigned int rain_ticks = 0;
 unsigned int next_rain_edge = 0;
@@ -13,18 +13,26 @@ unsigned int next_rain_edge = 0;
 unsigned int wind_ticks = 0;
 unsigned int next_wind_edge = 1;
 
-unsigned int rain_readings[300];
-unsigned int wind_readings[300];
+unsigned int rain_readings[MAX_READING];
+unsigned int wind_readings[MAX_READING];
 
 unsigned int reading = 0;
 unsigned int sample = 0;
+
+unsigned int wind;
+unsigned int rain;
 
 void entry()
 {
     for (;;)
     {
-        unsigned int wind = READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + WIND_PIN, 1);
-        unsigned int rain = READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + RAIN_PIN, 1);
+        if (reading >= MAX_READING)
+        {
+            break;
+        }
+
+        wind = READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + WIND_PIN, 1);
+        rain = READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + RAIN_PIN, 1);
 
         if (rain == next_rain_edge) {
             
@@ -48,11 +56,11 @@ void entry()
             next_wind_edge = !next_wind_edge;
         }
 
-        wait(CYCLES_PER_MS);
+        wait(CYCLES_PER_LOOP);
 
         sample++;
 
-        if (sample > SAMPLES_PER_READING)
+        if (sample >= SAMPLES_PER_READING)
         {
             sample = 0;
 
@@ -63,12 +71,7 @@ void entry()
             rain_ticks = 0;
 
             reading++;
-        }
-
-        if (reading >= MAX_READING)
-        {
-            break;
-        }
+        }    
     }
     
     wake_when_ready();

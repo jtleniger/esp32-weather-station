@@ -20,118 +20,117 @@ sample:
     .global entry
 .text
 .bss
-entry.wind:
+entry.12:
     .space 4
 .text
 .bss
-entry.rain:
-    .space 4
-.text
-.bss
-entry.10:
-    .space 4
-.text
-.bss
-entry.17:
+entry.19:
     .space 4
 .text
 entry:
 L.2:
+move r2,reading
+ld r2,r2,0
+move r1,30
+sub r2,r2,r1 #{ if r2 < r1 goto L.6
+add r2,r2,r1
+jump L.6, ov #}
+jump L.28
+L.6:
 reg_rd 265,30,30
-move r3,entry.wind
-st r0,r3,0
+move r1,wind
+st r0,r1,0
 reg_rd 265,20,20
-move r3,entry.rain
-st r0,r3,0
-move r2,entry.rain
+move r1,rain
+st r0,r1,0
+move r2,rain
 ld r2,r2,0
 move r1,next_rain_edge
 ld r1,r1,0
-sub r2,r2,r1 #{ if r2!=r1 goto L.6 
+sub r2,r2,r1 #{ if r2!=r1 goto L.8 
 jump 1f, eq
 add r2,r2,r1
-jump L.6
+jump L.8
 1:
 add r2,r2,r1 #}
 move r2,next_rain_edge
 ld r2,r2,0
-move r2,r2 #if r2 == 0 goto L.8
-jump L.8, eq
+move r2,r2 #if r2 == 0 goto L.10
+jump L.10, eq
 move r2,rain_ticks
 ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
-L.8:
+L.10:
 move r2,next_rain_edge
 ld r1,r2,0
-move r1,r1 #{ if r1 goto L.11 
+move r1,r1 #{ if r1 goto L.13 
 jump 1f, eq
-jump L.11
+jump L.13
 1:           #}
 move r1,1
-move r3,entry.10
+move r3,entry.12
 st r1,r3,0
-jump L.12
-L.11:
+jump L.14
+L.13:
 move r1,0
-move r3,entry.10
+move r3,entry.12
 st r1,r3,0
-L.12:
-move r1,entry.10
+L.14:
+move r1,entry.12
 ld r1,r1,0
 st r1,r2,0
-L.6:
-move r2,entry.wind
+L.8:
+move r2,wind
 ld r2,r2,0
 move r1,next_wind_edge
 ld r1,r1,0
-sub r2,r2,r1 #{ if r2!=r1 goto L.13 
+sub r2,r2,r1 #{ if r2!=r1 goto L.15 
 jump 1f, eq
 add r2,r2,r1
-jump L.13
+jump L.15
 1:
 add r2,r2,r1 #}
 move r2,next_wind_edge
 ld r2,r2,0
-move r2,r2 #{ if r2 goto L.15 
+move r2,r2 #{ if r2 goto L.17 
 jump 1f, eq
-jump L.15
+jump L.17
 1:           #}
 move r2,wind_ticks
 ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
-L.15:
+L.17:
 move r2,next_wind_edge
 ld r1,r2,0
-move r1,r1 #{ if r1 goto L.18 
+move r1,r1 #{ if r1 goto L.20 
 jump 1f, eq
-jump L.18
+jump L.20
 1:           #}
 move r1,1
-move r3,entry.17
+move r3,entry.19
 st r1,r3,0
-jump L.19
-L.18:
+jump L.21
+L.20:
 move r1,0
-move r3,entry.17
+move r3,entry.19
 st r1,r3,0
-L.19:
-move r1,entry.17
+L.21:
+move r1,entry.19
 ld r1,r1,0
 st r1,r2,0
-L.13:
-wait 8000
+L.15:
+wait 123
 move r2,sample
 ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
 ld r2,r2,0
-move r1,999
-sub r2,r2,r1 #{ if r2 <= r1 goto L.20
+move r1,0xfe11
+sub r2,r2,r1 #{ if r2 < r1 goto L.2
 add r2,r2,r1
-jump L.20, eq
-jump L.20, ov #}
+jump L.2, ov #}
 move r2,sample
 move r1,0
 st r1,r2,0
@@ -159,13 +158,7 @@ move r2,reading
 ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
-L.20:
-move r2,reading
-ld r2,r2,0
-move r1,60
-sub r2,r2,r1 #{ if r2 < r1 goto L.2
-add r2,r2,r1
-jump L.2, ov #}
+jump L.2
 L.27:
 L.28:
 reg_rd 48,19,19
@@ -178,11 +171,17 @@ L.25:
 L.1:
 
 .bss
+    .global rain
+rain:
+    .space 4
+    .global wind
+wind:
+    .space 4
     .global wind_readings
 wind_readings:
-    .space 1200
+    .space 120
     .global rain_readings
 rain_readings:
-    .space 1200
+    .space 120
 .text
 halt
