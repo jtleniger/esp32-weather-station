@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "rtc_cntl_reg.h": "c",
+        "soc_ulp.h": "c",
+        "rtc_io_reg.h": "c"
+    }
+}
