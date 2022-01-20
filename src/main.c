@@ -9,11 +9,6 @@
 extern const uint8_t ulp_main_bin_start[] asm("_binary_ulp_main_bin_start");
 extern const uint8_t ulp_main_bin_end[] asm("_binary_ulp_main_bin_end");
 
-extern uint32_t ulp_wind_readings;
-extern uint32_t ulp_rain_readings;
-extern uint32_t ulp_reading;
-extern uint32_t ulp_sample;
-
 void print_wakeup_reason()
 {
   esp_sleep_wakeup_cause_t wakeup_reason;
@@ -43,6 +38,15 @@ void print_wakeup_reason()
   }
 }
 
+void init_ulp_vars()
+{
+  for (int i = 0; i < 10; i++)
+  {
+    (&ulp_rain_readings)[i] = 0;
+    (&ulp_wind_readings)[i] = 0;
+  }
+}
+
 const gpio_config_t config = {
     .pin_bit_mask = 1ULL << 25 | 1ULL << 14,
     .mode = GPIO_MODE_INPUT,
@@ -59,16 +63,13 @@ void app_main(void)
   esp_err_t err = gpio_config(&config);
   ESP_ERROR_CHECK(err);
 
-  if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_ULP)
-  {
-    ulp_reading = 0;
-    ulp_sample = 0;
-
-    for (int i = 0; i < 30; i++)
-    {
-      printf("second:\t%d\train:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i], (uint16_t)(&ulp_wind_readings)[i]);
-    }
-  }
+  // if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_ULP)
+  // {
+  //   for (int i = 0; i < 10; i++)
+  //   {
+  //     printf("second:\t%d\train:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i], (uint16_t)(&ulp_wind_readings)[i]);
+  //   }
+  // }
 
   printf("good night\n\n");
   fflush(stdout);
@@ -76,7 +77,9 @@ void app_main(void)
   err = ulp_load_binary(0, ulp_main_bin_start, (ulp_main_bin_end - ulp_main_bin_start) / sizeof(uint32_t));
   ESP_ERROR_CHECK(err);
 
-  ulp_set_wakeup_period(0, 20000);
+  init_ulp_vars();
+
+  ulp_set_wakeup_period(0, 500000);
 
   err = esp_sleep_enable_ulp_wakeup();
   ESP_ERROR_CHECK(err);
@@ -84,5 +87,11 @@ void app_main(void)
   err = ulp_run(&ulp_entry - RTC_SLOW_MEM);
   ESP_ERROR_CHECK(err);
 
-  esp_deep_sleep_start();
+  vTaskDelay(11000 / portTICK_PERIOD_MS);
+
+  for (int i = 0; i < 10; i++)
+  {
+    printf("second:\t%d\train:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i], (uint16_t)(&ulp_wind_readings)[i]);
+  }
+  // esp_deep_sleep_start();
 }
