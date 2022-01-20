@@ -4,7 +4,7 @@
 #include "esp32/ulp.h"
 #include "esp_sleep.h"
 #include "ulp_main.h"
-#include "driver/gpio.h"
+#include "driver/rtc_io.h"
 
 extern const uint8_t ulp_main_bin_start[] asm("_binary_ulp_main_bin_start");
 extern const uint8_t ulp_main_bin_end[] asm("_binary_ulp_main_bin_end");
@@ -47,29 +47,39 @@ void init_ulp_vars()
   }
 }
 
-const gpio_config_t config = {
-    .pin_bit_mask = 1ULL << 25 | 1ULL << 14,
-    .mode = GPIO_MODE_INPUT,
-    .intr_type = GPIO_INTR_DISABLE,
-    .pull_down_en = GPIO_PULLDOWN_DISABLE,
-    .pull_up_en = GPIO_PULLUP_DISABLE};
-
 void app_main(void)
 {
   printf("\n");
   printf("good morno\n\n");
   print_wakeup_reason();
 
-  esp_err_t err = gpio_config(&config);
+  esp_err_t err;
+  
+  err = rtc_gpio_init(25);
   ESP_ERROR_CHECK(err);
 
-  // if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_ULP)
-  // {
-  //   for (int i = 0; i < 10; i++)
-  //   {
-  //     printf("second:\t%d\train:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i], (uint16_t)(&ulp_wind_readings)[i]);
-  //   }
-  // }
+  err = gpio_set_pull_mode(25, GPIO_FLOATING);
+  ESP_ERROR_CHECK(err);
+
+  err = rtc_gpio_set_direction(25, RTC_GPIO_MODE_INPUT_ONLY);
+  ESP_ERROR_CHECK(err);
+
+  err = rtc_gpio_init(14);
+  ESP_ERROR_CHECK(err);
+
+  err = gpio_set_pull_mode(14, GPIO_FLOATING);
+  ESP_ERROR_CHECK(err);
+
+  err = rtc_gpio_set_direction(14, RTC_GPIO_MODE_INPUT_ONLY);
+  ESP_ERROR_CHECK(err);
+
+  if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_ULP)
+  {
+    for (int i = 0; i < 10; i++)
+    {
+      printf("second:\t%d\train:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i], (uint16_t)(&ulp_wind_readings)[i]);
+    }
+  }
 
   printf("good night\n\n");
   fflush(stdout);
@@ -87,11 +97,12 @@ void app_main(void)
   err = ulp_run(&ulp_entry - RTC_SLOW_MEM);
   ESP_ERROR_CHECK(err);
 
-  vTaskDelay(11000 / portTICK_PERIOD_MS);
+  // vTaskDelay(11000 / portTICK_PERIOD_MS);
 
-  for (int i = 0; i < 10; i++)
-  {
-    printf("second:\t%d\train:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i], (uint16_t)(&ulp_wind_readings)[i]);
-  }
-  // esp_deep_sleep_start();
+  // for (int i = 0; i < 10; i++)
+  // {
+  //   printf("second:\t%d\train:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i], (uint16_t)(&ulp_wind_readings)[i]);
+  // }
+  
+  esp_deep_sleep_start();
 }

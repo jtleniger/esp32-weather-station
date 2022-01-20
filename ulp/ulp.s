@@ -33,7 +33,7 @@ move r1,10
 sub r2,r2,r1 #{ if r2 < r1 goto L.6
 add r2,r2,r1
 jump L.6, ov #}
-jump L.4
+jump L.18
 L.6:
 reg_rd 265,30,30
 move r1,wind_value
@@ -141,9 +141,16 @@ ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
 jump L.2
-L.4:
+L.17:
+L.18:
+reg_rd 48,19,19
+and r2,r0,1
+move r2,r2 #if r2 == 0 goto L.17
+jump L.17, eq
+wake 
 reg_wr 6,24,24,0
 halt 
+L.15:
 L.1:
 
 .bss

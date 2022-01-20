@@ -64,9 +64,6 @@ void entry()
             reading++;
         }    
     }
-
-    reg_wr(6, 24, 24, 0);
-    halt();
     
-    // wake_when_ready();
+    wake_when_ready();
 }
