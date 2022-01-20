@@ -3,8 +3,8 @@
 #define WIND_PIN 16
 #define RAIN_PIN 6
 
-#define SAMPLES_PER_READING 32000
-#define MAX_READING 30
+#define SAMPLES_PER_READING 31496
+#define MAX_READING 300
 
 unsigned int rain_edges = 0;
 unsigned int wind_edges = 0;

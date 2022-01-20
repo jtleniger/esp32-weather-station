@@ -29,7 +29,7 @@ entry:
 L.2:
 move r2,reading
 ld r2,r2,0
-move r1,30
+move r1,300
 sub r2,r2,r1 #{ if r2 < r1 goto L.6
 add r2,r2,r1
 jump L.6, ov #}
@@ -155,9 +155,9 @@ L.1:
 .bss
     .global wind_readings
 wind_readings:
-    .space 120
+    .space 1200
     .global rain_readings
 rain_readings:
-    .space 120
+    .space 1200
 .text
 halt
