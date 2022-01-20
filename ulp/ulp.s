@@ -29,7 +29,7 @@ entry:
 L.2:
 move r2,reading
 ld r2,r2,0
-move r1,10
+move r1,30
 sub r2,r2,r1 #{ if r2 < r1 goto L.6
 add r2,r2,r1
 jump L.6, ov #}
@@ -101,13 +101,12 @@ move r2,last_wind_value
 move r1,wind_value
 ld r1,r1,0
 st r1,r2,0
-wait 123
 move r2,sample
 ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
 ld r2,r2,0
-move r1,0xfe11
+move r1,32000
 sub r2,r2,r1 #{ if r2 < r1 goto L.2
 add r2,r2,r1
 jump L.2, ov #}
@@ -156,9 +155,9 @@ L.1:
 .bss
     .global wind_readings
 wind_readings:
-    .space 40
+    .space 120
     .global rain_readings
 rain_readings:
-    .space 40
+    .space 120
 .text
 halt

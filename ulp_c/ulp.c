@@ -3,9 +3,8 @@
 #define WIND_PIN 16
 #define RAIN_PIN 6
 
-#define CYCLES_PER_LOOP 123
-#define SAMPLES_PER_READING 65041
-#define MAX_READING 10
+#define SAMPLES_PER_READING 32000
+#define MAX_READING 30
 
 unsigned int rain_edges = 0;
 unsigned int wind_edges = 0;
@@ -46,8 +45,6 @@ void entry()
         }
 
         last_wind_value = wind_value;
-
-        wait(CYCLES_PER_LOOP);
 
         sample++;
 
