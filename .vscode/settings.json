@@ -5,6 +5,8 @@
         "rtc_io_reg.h": "c",
         "rtc.h": "c",
         "esp_sleep.h": "c",
-        "esp_rom_gpio.h": "c"
+        "esp_rom_gpio.h": "c",
+        "ulp_main.h": "c",
+        "gpio.h": "c"
     }
 }
