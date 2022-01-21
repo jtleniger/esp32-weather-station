@@ -15,7 +15,7 @@ set(ulp_s_sources "../ulp/ulp.s")
 #
 # 3. List all the component source files which include automatically
 #    generated ULP export file, ${ulp_app_name}.h:
-set(ulp_exp_dep_srcs "main.c")
+set(ulp_exp_dep_srcs "ulp.cpp")
 #
 # 4. Call function to build ULP binary and embed in project using the argument
 #    values above.
