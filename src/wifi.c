@@ -1,57 +1,72 @@
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "nvs_flash.h"
 
 #include "wifi.h"
 #include "credentials.h"
 
-#define ESP_MAXIMUM_RETRY 5
+#define ESP_MAXIMUM_RETRY 10
 
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
 
-namespace
+static const char *TAG = "WIFI";
+
+static EventGroupHandle_t s_wifi_event_group;
+
+static int s_retry_num = 0;
+
+static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-  static const char *TAG = "WIFI";
-
-  static EventGroupHandle_t s_wifi_event_group;
-  
-  static int s_retry_num = 0;
-
-  static void event_handler(void *arg, esp_event_base_t event_base,
-                            int32_t event_id, void *event_data)
+  if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
   {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
+    esp_wifi_connect();
+  }
+  else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
+  {
+    if (s_retry_num < ESP_MAXIMUM_RETRY)
     {
+      system_event_sta_disconnected_t *event = (system_event_sta_disconnected_t *)event_data;
+      wifi_err_reason_t reason = (wifi_err_reason_t)event->reason;
+      ESP_LOGE(TAG, "reason: %d", reason);
+      vTaskDelay(5000 / portTICK_PERIOD_MS);
       esp_wifi_connect();
+      s_retry_num++;
+      ESP_LOGI(TAG, "retry to connect to the AP");
     }
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
+    else
     {
-      if (s_retry_num < ESP_MAXIMUM_RETRY)
-      {
-        esp_wifi_connect();
-        s_retry_num++;
-        ESP_LOGI(TAG, "retry to connect to the AP");
-      }
-      else
-      {
-        xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-      }
-      ESP_LOGI(TAG, "connect to the AP fail");
+      xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
     }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
-    {
-      ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-      ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
-      s_retry_num = 0;
-      xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-    }
+    ESP_LOGI(TAG, "connect to the AP fail");
+  }
+  else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+  {
+    ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+    ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+    s_retry_num = 0;
+    xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
   }
 }
 
-void WIFI::connect()
+void init_nvs()
+{
+  esp_err_t ret = nvs_flash_init();
+
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  {
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    ret = nvs_flash_init();
+  }
+
+  ESP_ERROR_CHECK(ret);
+}
+
+void connect_wifi()
 {
   s_wifi_event_group = xEventGroupCreate();
 
@@ -77,6 +92,15 @@ void WIFI::connect()
                                                       NULL,
                                                       &instance_got_ip));
 
+  wifi_country_t wifi_country = {
+    .cc = "US ",
+    .schan = 1,
+    .nchan = 11,
+    .policy = WIFI_COUNTRY_POLICY_MANUAL
+  };
+
+  ESP_ERROR_CHECK(esp_wifi_set_country(&wifi_country));
+
   wifi_config_t wifi_config = {
       .sta = {
           .ssid = ESP_WIFI_SSID,
@@ -88,9 +112,11 @@ void WIFI::connect()
 
           .pmf_cfg = {
               .capable = true,
-              .required = false},
+              .required = false
+          },
       },
   };
+
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
   ESP_ERROR_CHECK(esp_wifi_start());
