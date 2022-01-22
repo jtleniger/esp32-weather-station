@@ -1,6 +1,7 @@
 #include "stdint.h"
 #include "driver/gpio.h"
 #include "driver/adc.h"
+#include "esp_adc_cal.h"
 
 
 #include "battery.h"
@@ -14,6 +15,14 @@ namespace
 
 float WS_BATTERY::voltage()
 {
+  esp_err_t err;
+
+  err = adc1_config_width(ADC_WIDTH_BIT_12);
+  ESP_ERROR_CHECK(err);
+
+  err = adc1_config_channel_atten(CHANNEL, ADC_ATTEN_DB_11);
+  ESP_ERROR_CHECK(err);
+
   int raw = adc1_get_raw(CHANNEL);
 
   float vOut = (raw * 3.3 ) / 4095.0;
