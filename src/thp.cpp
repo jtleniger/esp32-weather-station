@@ -16,8 +16,6 @@ namespace
 
 void WS_THP::init()
 {
-  ESP_ERROR_CHECK(i2cdev_init());
-  
   bmp280_params_t params;
   bmp280_init_default_params(&params);
   

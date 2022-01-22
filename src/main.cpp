@@ -3,6 +3,7 @@
 #include "freertos/task.h"
 #include "esp_sleep.h"
 #include "esp_log.h"
+#include "i2cdev.h"
 
 #include "ulp.h"
 #include "mqtt.h"
@@ -11,6 +12,7 @@
 #include "thp.h"
 #include "ext_temp.h"
 #include "wind_dir.h"
+#include "lux.h"
 
 static const char *TAG = "WS_MAIN";
 
@@ -21,13 +23,15 @@ extern "C"
 
 void app_main(void)
 {
+  ESP_ERROR_CHECK(i2cdev_init());
   // WS_THP::init();
+  WS_LUX::init();
 
   for (;;)
   {
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    ESP_LOGI(TAG, "v: %.1f", WS_WIND_DIR::direction());
+    ESP_LOGI(TAG, "lux: %d", WS_LUX::lux());
 
     // ESP_LOGI(TAG, "v: %f", WS_BATTERY::voltage());
 
