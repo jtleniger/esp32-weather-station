@@ -10,13 +10,17 @@ namespace
 
   static const gpio_num_t SDA = GPIO_NUM_21;
   static const gpio_num_t SCL = GPIO_NUM_22;
+
+  bmp280_t dev;
 }
 
-void WS_THP::read(float *temperature, float *pressure, float *humidity)
+void WS_THP::init()
 {
+  ESP_ERROR_CHECK(i2cdev_init());
+  
   bmp280_params_t params;
   bmp280_init_default_params(&params);
-  bmp280_t dev;
+  
   memset(&dev, 0, sizeof(bmp280_t));
 
   ESP_LOGI(TAG, "attempting to init BME280");
@@ -25,7 +29,10 @@ void WS_THP::read(float *temperature, float *pressure, float *humidity)
   ESP_LOGI(TAG, "done");
 
   bool bme280p = dev.id == BME280_CHIP_ID;
-  ESP_LOGI(TAG, "BMP280: found %s\n", bme280p ? "BME280" : "BMP280");
+  ESP_LOGI(TAG, "found %s\n", bme280p ? "BME280" : "BMP280");
+}
 
+void WS_THP::read(float *temperature, float *pressure, float *humidity)
+{
   ESP_ERROR_CHECK(bmp280_read_float(&dev, temperature, pressure, humidity));
 }

@@ -3,13 +3,13 @@
 #include "freertos/task.h"
 #include "esp_sleep.h"
 #include "esp_log.h"
-#include "i2cdev.h"
 
 #include "ulp.h"
 #include "mqtt.h"
 #include "wifi.h"
 #include "battery.h"
 #include "thp.h"
+#include "ext_temp.h"
 
 static const char *TAG = "WS_MAIN";
 
@@ -20,20 +20,20 @@ extern "C"
 
 void app_main(void)
 {
-  ESP_ERROR_CHECK(i2cdev_init());
+  // WS_THP::init();
 
-  for (;;)
-  {
-    ESP_LOGI(TAG, "v: %f", WS_BATTERY::voltage());
+  // for (;;)
+  // {
+  //   vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    float pressure, temperature, humidity;
+  //   ESP_LOGI(TAG, "v: %f", WS_BATTERY::voltage());
 
-    WS_THP::read(&temperature, &pressure, &humidity);
+  //   float pressure, temperature, humidity;
 
-    ESP_LOGI(TAG, "temp: %f pres: %f hum: %f", temperature, pressure, humidity);
+  //   WS_THP::read(&temperature, &pressure, &humidity);
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-  }
+  //   ESP_LOGI(TAG, "temp: %f pres: %f hum: %f", temperature, pressure, humidity);
+  // }
   
 
   // if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_ULP)
