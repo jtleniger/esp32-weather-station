@@ -1,5 +1,6 @@
 #include <string>
 #include <sstream>
+#include <iomanip>
 #include "esp32/ulp.h"
 #include "esp_sleep.h"
 #include "ulp_main.h"
@@ -52,10 +53,12 @@ namespace
     std::stringstream data;
 
     data << std::hex;
+    data << std::setfill('0');
 
     for (int i = 0; i < ULP_READINGS; i++)
     {
-      data << (uint8_t)(data_array)[i];
+      data << std::setw(2);
+      data << (uint16_t)(data_array)[i];
     }
 
     return data.str();

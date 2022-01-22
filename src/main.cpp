@@ -7,6 +7,7 @@
 #include "ulp.h"
 #include "mqtt.h"
 #include "wifi.h"
+#include "battery.h"
 
 static const char *TAG = "WS_MAIN";
 
@@ -25,6 +26,7 @@ void app_main(void)
     WS_MQTT::hello();
     
     ESP_LOGI(TAG, "publishing data");
+    WS_MQTT::publish("battery", std::to_string(WS_BATTERY::voltage()));
     WS_MQTT::publish("wind", WS_ULP::raw_wind_data());
     WS_MQTT::publish("rain", WS_ULP::raw_rain_data());
     ESP_LOGI(TAG, "done");
