@@ -10,6 +10,7 @@
 #include "battery.h"
 #include "thp.h"
 #include "ext_temp.h"
+#include "wind_dir.h"
 
 static const char *TAG = "WS_MAIN";
 
@@ -22,18 +23,20 @@ void app_main(void)
 {
   // WS_THP::init();
 
-  // for (;;)
-  // {
-  //   vTaskDelay(1000 / portTICK_PERIOD_MS);
+  for (;;)
+  {
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-  //   ESP_LOGI(TAG, "v: %f", WS_BATTERY::voltage());
+    ESP_LOGI(TAG, "v: %.1f", WS_WIND_DIR::direction());
 
-  //   float pressure, temperature, humidity;
+    // ESP_LOGI(TAG, "v: %f", WS_BATTERY::voltage());
 
-  //   WS_THP::read(&temperature, &pressure, &humidity);
+    // float pressure, temperature, humidity;
 
-  //   ESP_LOGI(TAG, "temp: %f pres: %f hum: %f", temperature, pressure, humidity);
-  // }
+    // WS_THP::read(&temperature, &pressure, &humidity);
+
+    // ESP_LOGI(TAG, "temp: %f pres: %f hum: %f", temperature, pressure, humidity);
+  }
   
 
   // if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_ULP)
