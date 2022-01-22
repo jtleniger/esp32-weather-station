@@ -1,3 +1,4 @@
+#include <string>
 #include "esp32/ulp.h"
 #include "esp_sleep.h"
 #include "ulp_main.h"
@@ -44,6 +45,21 @@ namespace
       (&ulp_wind_readings)[i] = 0;
     }
   }
+
+  std::string build_data_string(uint32_t *data_array)
+  {
+    std::string data = "[";
+
+    for (int i = 0; i < ULP_READINGS; i++)
+    {
+      data += std::to_string((uint16_t)(data_array)[i]);
+      data += ",";
+    }
+
+    data += "]";
+
+    return data;
+  }
 }
 
 void WS_ULP::start()
@@ -65,7 +81,7 @@ void WS_ULP::start()
   err = ulp_run(&ulp_entry - RTC_SLOW_MEM);
   ESP_ERROR_CHECK(err);
 
-  ESP_LOGI(TAG, "entering sleep");
+  ESP_LOGI(TAG, "entering sleep for 5 minutes");
   esp_deep_sleep_start();
 }
 
@@ -77,4 +93,14 @@ void WS_ULP::print_readings()
   }
 
   fflush(stdout);
+}
+
+std::string WS_ULP::raw_wind_data()
+{
+  return build_data_string(&ulp_wind_readings);
+}
+
+std::string WS_ULP::raw_rain_data()
+{
+  return build_data_string(&ulp_rain_readings);
 }
