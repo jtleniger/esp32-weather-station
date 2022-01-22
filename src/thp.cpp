@@ -34,5 +34,9 @@ void WS_THP::init()
 
 void WS_THP::read(float *temperature, float *pressure, float *humidity)
 {
+  ESP_LOGI(TAG, "reading bme280");
+  ESP_LOGI(TAG, "waiting for sensor to stabilize");
+  vTaskDelay(100 / portTICK_PERIOD_MS);
   ESP_ERROR_CHECK(bmp280_read_float(&dev, temperature, pressure, humidity));
+  ESP_LOGI(TAG, "done");
 }
