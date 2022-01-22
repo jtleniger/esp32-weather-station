@@ -1,4 +1,5 @@
 #include <string>
+#include <sstream>
 #include "esp32/ulp.h"
 #include "esp_sleep.h"
 #include "ulp_main.h"
@@ -48,17 +49,16 @@ namespace
 
   std::string build_data_string(uint32_t *data_array)
   {
-    std::string data = "[";
+    std::stringstream data;
+
+    data << std::hex;
 
     for (int i = 0; i < ULP_READINGS; i++)
     {
-      data += std::to_string((uint16_t)(data_array)[i]);
-      data += ",";
+      data << (uint8_t)(data_array)[i];
     }
 
-    data += "]";
-
-    return data;
+    return data.str();
   }
 }
 
