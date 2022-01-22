@@ -1,5 +1,6 @@
 #pragma once
-namespace ULP
+
+namespace WS_ULP
 {
   void start();
   void print_readings();

@@ -1,7 +1,7 @@
-#ifndef WEATHER_STATION_WIFI_H
-#define WEATHER_STATION_WIFI_H
+#pragma once
 
-void init_nvs();
-void connect_wifi();
-
-#endif
+namespace WS_WIFI
+{
+  void init_nvs();
+  void connect_wifi();
+}

@@ -8,7 +8,7 @@
 
 namespace
 {
-  static const char *TAG = "ULP";
+  static const char *TAG = "WS_ULP";
 
   const uint16_t ULP_READINGS = 300;
 
@@ -46,13 +46,13 @@ namespace
   }
 }
 
-void ULP::start()
+void WS_ULP::start()
 {
-  ESP_LOGV(TAG, "Loading ULP binary");
+  ESP_LOGV(TAG, "loading ULP binary");
   esp_err_t err = ulp_load_binary(0, ulp_main_bin_start, (ulp_main_bin_end - ulp_main_bin_start) / sizeof(uint32_t));
   ESP_ERROR_CHECK(err);
 
-  ESP_LOGV(TAG, "Setting pin modes and wakeup settings");
+  ESP_LOGV(TAG, "setting pin modes and wakeup settings");
   init_pins();
   clear_readings();
 
@@ -61,15 +61,15 @@ void ULP::start()
   err = esp_sleep_enable_ulp_wakeup();
   ESP_ERROR_CHECK(err);
 
-  ESP_LOGV(TAG, "Starting ULP");
+  ESP_LOGV(TAG, "starting ULP");
   err = ulp_run(&ulp_entry - RTC_SLOW_MEM);
   ESP_ERROR_CHECK(err);
 
-  ESP_LOGI(TAG, "Entering sleep");
+  ESP_LOGI(TAG, "entering sleep");
   esp_deep_sleep_start();
 }
 
-void ULP::print_readings()
+void WS_ULP::print_readings()
 {
   for (int i = 0; i < ULP_READINGS; i++)
   {
