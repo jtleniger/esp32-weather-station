@@ -58,6 +58,9 @@ void app_main(void)
     WS_MQTT::publish("raw_wind",  wind_data);
     WS_MQTT::publish("raw_rain",  rain_data);
     ESP_LOGI(TAG, "done");
+
+    ESP_LOGI(TAG, "waiting 1s before sleeping...");
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 
   WS_ULP::start();

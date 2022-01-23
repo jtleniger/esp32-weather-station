@@ -36,5 +36,10 @@ void WS_MQTT::hello()
 
 void WS_MQTT::publish(std::string topic, std::string data)
 {
-  esp_mqtt_client_publish(client, (BASE_TOPIC + topic).c_str(), data.c_str(), 0, 1, false);
+  int message_id = esp_mqtt_client_publish(client, (BASE_TOPIC + topic).c_str(), data.c_str(), 0, 1, false);
+
+  if (message_id < 0)
+  {
+    ESP_LOGE(TAG, "error publishing mqtt message");
+  }
 }
