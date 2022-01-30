@@ -73,7 +73,7 @@ void WS_WIFI::init_nvs()
   ESP_ERROR_CHECK(ret);
 }
 
-void WS_WIFI::connect_wifi()
+bool WS_WIFI::connect_wifi()
 {
   s_wifi_event_group = xEventGroupCreate();
 
@@ -134,23 +134,25 @@ void WS_WIFI::connect_wifi()
       pdFALSE,
       portMAX_DELAY);
 
-  /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually happened. */
-  if (bits & WIFI_CONNECTED_BIT)
-  {
-    ESP_LOGI(TAG, "connected to ap SSID: %s password: %s", ESP_WIFI_SSID, ESP_WIFI_PASS);
-  }
-  else if (bits & WIFI_FAIL_BIT)
-  {
-    ESP_LOGI(TAG, "Failed to connect to SSID :%s, password: %s", ESP_WIFI_SSID, ESP_WIFI_PASS);
-  }
-  else
-  {
-    ESP_LOGE(TAG, "unexpected event");
-  }
-
   /* The event will not be processed after unregister */
   ESP_ERROR_CHECK(esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip));
   ESP_ERROR_CHECK(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));
 
   vEventGroupDelete(s_wifi_event_group);
+
+  if (bits & WIFI_CONNECTED_BIT)
+  {
+    ESP_LOGI(TAG, "connected to ap SSID: %s password: %s", ESP_WIFI_SSID, ESP_WIFI_PASS);
+    return true;
+  }
+  else if (bits & WIFI_FAIL_BIT)
+  {
+    ESP_LOGI(TAG, "Failed to connect to SSID :%s, password: %s", ESP_WIFI_SSID, ESP_WIFI_PASS);
+    return false;
+  }
+  else
+  {
+    ESP_LOGE(TAG, "unexpected event");
+    return false;
+  }
 }

@@ -3,5 +3,5 @@
 namespace WS_WIFI
 {
   void init_nvs();
-  void connect_wifi();
+  bool connect_wifi();
 }
