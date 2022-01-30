@@ -106,7 +106,7 @@ ld r1,r2,0
 add r1,r1,1
 st r1,r2,0
 ld r2,r2,0
-move r1,32000
+move r1,31496
 sub r2,r2,r1 #{ if r2 < r1 goto L.2
 add r2,r2,r1
 jump L.2, ov #}
@@ -115,24 +115,13 @@ move r1,0
 st r1,r2,0
 move r2,reading
 ld r2,r2,0
-move r1,wind_readings
+move r1,wind_ticks
 add r2,r2,r1
 move r1,wind_edges
 ld r1,r1,0
 rsh r1,r1,1
 st r1,r2,0
 move r2,wind_edges
-move r1,0
-st r1,r2,0
-move r2,reading
-ld r2,r2,0
-move r1,rain_readings
-add r2,r2,r1
-move r1,rain_edges
-ld r1,r1,0
-rsh r1,r1,1
-st r1,r2,0
-move r2,rain_edges
 move r1,0
 st r1,r2,0
 move r2,reading
@@ -153,11 +142,8 @@ L.15:
 L.1:
 
 .bss
-    .global wind_readings
-wind_readings:
-    .space 1200
-    .global rain_readings
-rain_readings:
+    .global wind_ticks
+wind_ticks:
     .space 1200
 .text
 halt
