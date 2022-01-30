@@ -43,7 +43,7 @@ void app_main(void)
     ext_temp = WS_EXT_TEMP::temp_f();
     wind_dir = WS_WIND_DIR::direction();
     std::string wind_data = WS_ULP::raw_wind_data();
-    std::string rain_data = WS_ULP::raw_rain_data();
+    uint16_t rain = WS_ULP::rain_data();
     uint16_t lux = WS_LUX::lux();
     ESP_LOGI(TAG, "done");
     
@@ -56,7 +56,7 @@ void app_main(void)
     WS_MQTT::publish("lux",       std::to_string(lux));
     WS_MQTT::publish("wind_dir",  std::to_string(wind_dir));
     WS_MQTT::publish("raw_wind",  wind_data);
-    WS_MQTT::publish("raw_rain",  rain_data);
+    WS_MQTT::publish("rain",      std::to_string(rain));
     ESP_LOGI(TAG, "done");
 
     ESP_LOGI(TAG, "waiting 1s before sleeping...");

@@ -43,8 +43,7 @@ namespace
   {
     for (int i = 0; i < ULP_READINGS; i++)
     {
-      (&ulp_rain_readings)[i] = 0;
-      (&ulp_wind_readings)[i] = 0;
+      (&ulp_wind_ticks)[i] = 0;
     }
   }
 
@@ -92,18 +91,20 @@ void WS_ULP::print_readings()
 {
   for (int i = 0; i < ULP_READINGS; i++)
   {
-    printf("second:\t%d\train:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_rain_readings)[i], (uint16_t)(&ulp_wind_readings)[i]);
+    printf("second:\t%d\twind:\t%d\n", i + 1, (uint16_t)(&ulp_wind_ticks)[i]);
   }
+
+  printf("rain:\t%d\n", rain_data());
 
   fflush(stdout);
 }
 
 std::string WS_ULP::raw_wind_data()
 {
-  return build_data_string(&ulp_wind_readings);
+  return build_data_string(&ulp_wind_ticks);
 }
 
-std::string WS_ULP::raw_rain_data()
+uint16_t WS_ULP::rain_data()
 {
-  return build_data_string(&ulp_rain_readings);
+  return ((uint16_t)ulp_rain_edges) >> 1;
 }

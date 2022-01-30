@@ -9,8 +9,7 @@
 unsigned int rain_edges = 0;
 unsigned int wind_edges = 0;
 
-unsigned int rain_readings[MAX_READING];
-unsigned int wind_readings[MAX_READING];
+unsigned int wind_ticks[MAX_READING];
 
 unsigned int wind_value = 0;
 unsigned int last_wind_value = 0xFFFF;
@@ -52,11 +51,8 @@ void entry()
         {
             sample = 0;
 
-            wind_readings[reading] = wind_edges >> 1;
+            wind_ticks[reading] = wind_edges >> 1;
             wind_edges = 0;
-
-            rain_readings[reading] = rain_edges >> 1;
-            rain_edges = 0;
 
             reading++;
         }    

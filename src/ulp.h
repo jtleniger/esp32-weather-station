@@ -6,6 +6,6 @@ namespace WS_ULP
 {
   void start();
   void print_readings();
-  std::string raw_rain_data();
+  uint16_t rain_data();
   std::string raw_wind_data();
 }
