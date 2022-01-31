@@ -3,7 +3,9 @@
 #define WIND_PIN 16
 #define RAIN_PIN 6
 
-#define RTC_CNTL_TIME1_1_SEC 0x7A
+#define RTC_CNTL_TIME0_1_SEC 0x249F
+#define RTC_CNTL_TIME0_START_BIT 4
+#define RTC_CNTL_TIME0_WIDTH 14
 #define MAX_READING 300
 
 unsigned int rain_edges = 0;
@@ -22,10 +24,10 @@ unsigned int this_sample_at;
 
 void entry()
 {
-  // Initialize to now
+  // Initialize to now.
   WRITE_RTC_FIELD(RTC_CNTL_TIME_UPDATE_REG, RTC_CNTL_TIME_UPDATE, 1);
-  while (!READ_RTC_FIELD(RTC_CNTL_TIME_UPDATE_REG, RTC_CNTL_TIME_VALID));
-  last_sample_at = READ_RTC_REG(RTC_CNTL_TIME1_REG, 0, 15);
+  while (READ_RTC_FIELD(RTC_CNTL_TIME_UPDATE_REG, RTC_CNTL_TIME_VALID) == 0);
+  last_sample_at = READ_RTC_REG(RTC_CNTL_TIME0_REG, RTC_CNTL_TIME0_START_BIT, RTC_CNTL_TIME0_WIDTH);
 
   for (;;)
   {
@@ -52,10 +54,10 @@ void entry()
     last_wind_value = wind_value;
 
     WRITE_RTC_FIELD(RTC_CNTL_TIME_UPDATE_REG, RTC_CNTL_TIME_UPDATE, 1);
-    while (!READ_RTC_FIELD(RTC_CNTL_TIME_UPDATE_REG, RTC_CNTL_TIME_VALID));
-    this_sample_at = READ_RTC_REG(RTC_CNTL_TIME1_REG, 0, 15);
+    while (READ_RTC_FIELD(RTC_CNTL_TIME_UPDATE_REG, RTC_CNTL_TIME_VALID) == 0);
+    this_sample_at = READ_RTC_REG(RTC_CNTL_TIME0_REG, RTC_CNTL_TIME0_START_BIT, RTC_CNTL_TIME0_WIDTH);
 
-    if ((this_sample_at - last_sample_at) >= RTC_CNTL_TIME1_1_SEC)
+    if ((this_sample_at - last_sample_at) >= RTC_CNTL_TIME0_1_SEC)
     {
       last_sample_at = this_sample_at;
 

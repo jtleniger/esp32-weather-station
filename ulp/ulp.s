@@ -29,7 +29,7 @@ L.3:
 reg_rd 3,30,30
 move r0,r0 #if r0 == 0 goto L.2
 jump L.2, eq
-reg_rd 5,14,0
+reg_rd 4,17,4
 move r1,last_sample_at
 st r0,r1,0
 L.5:
@@ -113,7 +113,7 @@ L.16:
 reg_rd 3,30,30
 move r0,r0 #if r0 == 0 goto L.15
 jump L.15, eq
-reg_rd 5,14,0
+reg_rd 4,17,4
 move r1,this_sample_at
 st r0,r1,0
 move r2,this_sample_at
@@ -121,7 +121,7 @@ ld r2,r2,0
 move r1,last_sample_at
 ld r1,r1,0
 sub r2,r2,r1
-move r1,122
+move r1,9375
 sub r2,r2,r1 #{ if r2 < r1 goto L.5
 add r2,r2,r1
 jump L.5, ov #}
